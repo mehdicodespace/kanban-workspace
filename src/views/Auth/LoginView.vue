@@ -1,15 +1,23 @@
 <script setup>
-import {reactive} from "vue";
+import {reactive, ref} from "vue";
 import {RouterLink} from "vue-router";
+import axios from "axios";
 
 const user = reactive({
   email: null,
   password: null
 })
+const userData = ref()
 
-const login = () => {
-  console.log('login test')
+const login = async() => {
+  await axios.get('/sanctum/csrf-cookie')
+  const token = await axios.post('/login',user)
+  console.log(token)
+  // const {data} = await axios.get('/api/user')
+  // userData.value = data
+  // console.log(userData.value)
 }
+
 </script>
 
 <template>
@@ -34,7 +42,8 @@ const login = () => {
               <input type="password" v-model="user.password" name="password" autocomplete="off" id="password" placeholder="••••••••" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required="">
             </div>
 
-            <button type="submit" class="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Create an account</button>
+            <button type="submit"
+                    class="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Sign In</button>
             <p class="text-sm font-light text-gray-500 dark:text-gray-400">
               You don't have an account?  <RouterLink to="/signup" class="font-medium text-blue-600 hover:underline dark:text-blue-500">Create Account here</RouterLink>
             </p>

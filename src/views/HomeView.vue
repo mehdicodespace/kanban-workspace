@@ -1,10 +1,14 @@
 <script setup>
-import {reactive} from "vue";
+import {onMounted, ref} from "vue";
 import {RouterLink} from "vue-router";
+import axios from "axios";
 
-const user = reactive({
-  email: null,
-  password: null
+const user = ref()
+
+onMounted(async ()=>{
+  const {data} = await axios.get('api/user')
+  user.value = data
+  console.log(user.value)
 })
 </script>
 
