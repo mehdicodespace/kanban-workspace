@@ -33,5 +33,10 @@ export const useTaskStore = defineStore('task', () => {
     function filterTasks(status){
         return tasks.value?.filter(task=> task.status === status)
     }
-    return {deleting, modalLoading, tasks, filterTasks, getTasks, createTask, deleteTask, updateTask}
+
+    function resetStore(){
+        tasks.value = []
+    }
+
+    return {resetStore,deleting, modalLoading, tasks, filterTasks, getTasks, createTask, deleteTask, updateTask}
 })

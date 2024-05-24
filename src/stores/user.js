@@ -2,6 +2,7 @@ import {ref} from 'vue'
 import {defineStore} from 'pinia'
 import axios from "axios";
 import router from '@/router'
+import {useTaskStore} from "@/stores/task.js";
 
 export const useUserStore = defineStore('user', () => {
     const userInfo = ref()
@@ -15,14 +16,14 @@ export const useUserStore = defineStore('user', () => {
     async function login(userDetails) {
         await axios.get('/sanctum/csrf-cookie');
         const {data} = await axios.post('/login', userDetails);
-        await getUser()
+        useTaskStore().resetStore()
         router.push({name:'dashboard'})
     }
 
     async function register(userDetails) {
         await axios.get('/sanctum/csrf-cookie')
         const {data} =await axios.post('/register', userDetails)
-        await getUser()
+        useTaskStore().resetStore()
         router.push({name:'dashboard'})
     }
 
@@ -30,6 +31,7 @@ export const useUserStore = defineStore('user', () => {
         await axios.post('/logout')
         localStorage.removeItem('user')
         userInfo.value = ''
+        useTaskStore().resetStore()
         router.push({name:'login'})
     }
 
