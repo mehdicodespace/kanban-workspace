@@ -11,16 +11,24 @@ export const useTaskStore = defineStore('task', () => {
         return data
     }
 
+    async function createTask(task) {
+        await axios.post('/api/tasks/',task);
+        tasks.value?.push(task)
+    }
+
     async function deleteTask(taskId) {
-        await axios.post('/api/task/'+taskId);
+        const taskIndex = tasks.value?.findIndex(task=> task.id = taskId)
+        console.log(taskId)
+        tasks.value.splice(taskIndex,1)
+        await axios.delete('/api/tasks/'+taskId);
     }
 
     async function updateTask(task) {
-        await axios.post('/api/task/'+task.id, task)
+        await axios.put('/api/tasks/'+task.id, task)
     }
 
     function filterTasks(status){
         return tasks.value?.filter(task=> task.status === status)
     }
-    return {tasks, filterTasks, getTasks, deleteTask, updateTask}
+    return {tasks, filterTasks, getTasks, createTask, deleteTask, updateTask}
 })
