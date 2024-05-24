@@ -1,8 +1,10 @@
 <script setup>
 import {reactive, ref} from "vue";
 import {RouterLink} from "vue-router";
-import axios from "axios";
 import {validateEmail} from '@/helpers/validatiors.js'
+import {useUserStore} from "@/stores/user.js";
+
+const store = useUserStore()
 
 const user = reactive({
   name: null,
@@ -34,18 +36,12 @@ const signup = async () => {
       if (user.password && user.password.length >= 8) {
         if (user.password === user.password_confirmation) {
           submitting.value = true
-          await axios.get('/sanctum/csrf-cookie')
-          await axios.post('/register', user)
-          // console.log(token)
-          // const {data} = await axios.get('/api/user')
-          // userData.value = data
-          // console.log(userData.value)
+          await store.login(user)
+          submitting.value = false
         } else errors.value.password_confirmation.push("Password & password confirmation doesn't match")
       } else errors.value.password.push("The password field must be at least 8 characters.")
     } else errors.value.email.push("Email is not correct")
   } else errors.value.name.push("Name must be more than 2 characters")
-
-  console.log(errors.value.name)
 }
 
 

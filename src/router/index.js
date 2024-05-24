@@ -24,6 +24,7 @@ const routes = [
   {
     path: '/profile',
     name: "profile",
+    redirect: {name: "dashboard"},
     component: index,
     children: [
       {
