@@ -27,6 +27,10 @@
     animation: rotation 0.5s linear infinite reverse;
 }
 
+.loader.loadLarge,.loader.loadLarge::after{
+    width:72px;
+    height:72px;
+}
 @keyframes rotation {
     0% {
         transform: rotate(0deg);

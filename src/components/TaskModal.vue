@@ -1,12 +1,25 @@
 <script setup>
+import {computed} from 'vue'
+import {useTaskStore} from "@/stores/task.js";
+import {storeToRefs} from "pinia";
+
+const taskStore = useTaskStore()
+
 const props = defineProps(['type'])
 const task = defineModel('task')
 const emits = defineEmits(['close','modalUpdate'])
+
+const {tasks, modalLoading} = storeToRefs(taskStore)
+
+const parentTasks = computed(()=>{
+  return tasks.value?.filter((tsk)=> {
+    return !tsk.parent_id && tsk.id !== task.value.id
+  } )
+})
 </script>
 
 <template>
   <div @click="$emit('close')" class="cursor-pointer bg-gray-900/50 dark:bg-gray-900/80 fixed inset-0 z-40"></div>
-
   <!-- Main modal -->
   <div id="crud-modal" tabindex="-1" aria-hidden="true"
        class="flex overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center mx-auto 2xl:w-3/12 lg:w-4/12 md:w-5/12 sm:w-8/12 w-10/12 md:inset-0 h-[calc(100%-1rem)] max-h-full">
@@ -29,6 +42,14 @@ const emits = defineEmits(['close','modalUpdate'])
         <!-- Modal body -->
         <form class="p-4 md:p-5" @submit.prevent="$emit('modalUpdate',{task,type})">
           <div class="grid gap-4 mb-4 grid-cols-2">
+            <div class="relative col-span-2">
+              <label for="parent_task" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Parent Task</label>
+              <select id="status" v-model="task.parent_id"
+                      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                <option :value="null">No parent</option>
+                <option v-for="parentTask in parentTasks" :value="parentTask.id"> {{parentTask.title}}</option>
+              </select>
+            </div>
             <div class="col-span-2">
               <label for="title" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Title</label>
               <input type="text" v-model="task.title" name="title" id="title"
@@ -41,7 +62,7 @@ const emits = defineEmits(['close','modalUpdate'])
                 <option selected="">Select task status</option>
                 <option value="todo">Todo</option>
                 <option value="in progress">In progress</option>
-                <option value="done">Completed</option>
+                <option value="done">Done</option>
               </select>
             </div>
             <div class="col-span-2">
@@ -55,10 +76,14 @@ const emits = defineEmits(['close','modalUpdate'])
             <template v-if="type === 'create'">
               <svg class="me-1 -ms-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"></path></svg>
               Add new task
+
+              <span class="loader ml-4" v-if="modalLoading"></span>
             </template>
             <template v-else>
               <i class="fa fa-refresh text-white" aria-hidden="true"></i>
               Update the task
+
+              <span class="loader ml-4" v-if="modalLoading"></span>
             </template>
           </button>
         </form>

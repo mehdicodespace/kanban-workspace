@@ -13,7 +13,7 @@ onBeforeMount(async () => {
 </script>
 
 <template>
-  <nav class="bg-white border-gray-200 dark:bg-gray-900 shadow-md">
+  <nav class="bg-white border-gray-200 dark:bg-gray-900 shadow-md relative z-30">
     <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
       <router-link to="/" class="flex items-center space-x-3 rtl:space-x-reverse">
         <img src="https://flowbite.com/docs/images/logo.svg" class="h-8" alt="Flowbite Logo"/>
@@ -31,7 +31,7 @@ onBeforeMount(async () => {
             <span class="block text-sm  text-gray-500 truncate dark:text-gray-400">{{ user?.email }}</span>
           </div>
 
-          <button class="text-red-500 ml-6" @click="store.logout">Log out</button>
+          <button class="text-red-500 ml-6" @click="userStore.logout">Log out</button>
         </div>
       </div>
       <div class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-user">
