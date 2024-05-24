@@ -1,14 +1,14 @@
 <script setup>
-import {onMounted, ref} from "vue";
+import {onBeforeMount, ref} from "vue";
 import {RouterLink} from "vue-router";
-import axios from "axios";
+import {storeToRefs} from "pinia";
+import {useUserStore} from "@/stores/user.js";
 
-const user = ref()
+const store = useUserStore()
+const {userInfo:user} = storeToRefs(store)
 
-onMounted(async ()=>{
-  const {data} = await axios.get('api/user')
-  user.value = data
-  console.log(user.value)
+onBeforeMount(async () => {
+  await store.getUser()
 })
 </script>
 
@@ -35,7 +35,8 @@ onMounted(async ()=>{
         </div>
       </div>
       <div class="top-auto bottom-0 left-0 right-0 w-full absolute pointer-events-none overflow-hidden h-70-px" style="transform: translateZ(0px)">
-        <svg class="absolute bottom-0 overflow-hidden" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" version="1.1" viewBox="0 0 2560 100" x="0" y="0">
+        <svg class="absolute bottom-0 overflow-hidden" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" version="1.1" viewBox="0 0 2560 100" x="0"
+             y="0">
           <polygon class="text-blueGray-200 fill-current" points="2560 0 2560 100 0 100"></polygon>
         </svg>
       </div>
@@ -87,11 +88,30 @@ onMounted(async ()=>{
           <div class="container mx-auto px-4">
             <div class="flex flex-wrap items-center md:justify-between justify-center">
               <div class="w-full md:w-6/12 px-4 mx-auto text-center">
-                <RouterLink to="/signup" class="block w-full py-4 text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Create your account</RouterLink>
+                <template v-if="user">
+                  <div class="flex gap-3 items-center justify-center text-left">
+                    <img class="w-8 h-8 rounded-full" src="/src/assets/images/user.png" alt="user photo">
+                    <div>
+                      <span class="block text-sm text-gray-900 dark:text-white">{{ user.name }}</span>
+                      <span class="block text-sm  text-gray-500 truncate dark:text-gray-400">{{ user.email }}</span>
+                    </div>
+                  </div>
+                  <RouterLink to="/profile/dashboard"
+                              class="mt-4 block w-full py-4 text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                    Go to Dashboard
+                  </RouterLink>
+                </template>
+                <template v-else>
+                  <RouterLink to="/signup"
+                              class="block w-full py-4 text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                    Create your account
+                  </RouterLink>
 
-                <p class="text-sm font-medium mt-4 text-blueGray-500 dark:text-gray-400">
-                  Already have an account? <RouterLink to="/login" class="font-medium text-blue-600 hover:underline dark:text-blue-500">Login here</RouterLink>
-                </p>
+                  <p class="text-sm font-medium mt-4 text-blueGray-500 dark:text-gray-400">
+                    Already have an account?
+                    <RouterLink to="/login" class="font-medium text-blue-600 hover:underline dark:text-blue-500">Login here</RouterLink>
+                  </p>
+                </template>
               </div>
             </div>
           </div>

@@ -20,9 +20,7 @@ const errors = ref({
   password_confirmation: []
 })
 
-const submitting = ref(false)
-
-const userData = ref()
+const loading = ref(false)
 
 const signup = async () => {
   errors.value = {
@@ -35,9 +33,9 @@ const signup = async () => {
     if (validateEmail(user.email)) {
       if (user.password && user.password.length >= 8) {
         if (user.password === user.password_confirmation) {
-          submitting.value = true
-          await store.login(user)
-          submitting.value = false
+          loading.value = true
+          await store.register(user)
+          loading.value = false
         } else errors.value.password_confirmation.push("Password & password confirmation doesn't match")
       } else errors.value.password.push("The password field must be at least 8 characters.")
     } else errors.value.email.push("Email is not correct")
@@ -96,7 +94,8 @@ const signup = async () => {
             </div>
 
             <button type="submit"
-                    class="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                    class="flex outline-none items-center gap-4 justify-center w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+              <span class="loader" v-if="loading"></span>
               Create an account
             </button>
             <p class="text-sm font-light text-gray-500 dark:text-gray-400">

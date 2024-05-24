@@ -7,7 +7,7 @@ export const useTaskStore = defineStore('task', () => {
 
     async function getTasks() {
         const {data} = await axios.get('/api/tasks');
-        tasks.value = data
+        tasks.value = data?.data
         return data
     }
 
@@ -19,5 +19,8 @@ export const useTaskStore = defineStore('task', () => {
         await axios.post('/api/task/'+task.id, task)
     }
 
-    return {getTasks, deleteTask, updateTask}
+    function filterTasks(status){
+        return tasks.value?.filter(task=> task.status === status)
+    }
+    return {tasks, filterTasks, getTasks, deleteTask, updateTask}
 })

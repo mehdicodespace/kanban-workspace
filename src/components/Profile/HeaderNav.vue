@@ -1,5 +1,15 @@
 <script setup>
+import {useUserStore} from "@/stores/user.js";
+import {storeToRefs} from "pinia";
+import {onBeforeMount} from "vue";
 
+const userStore = useUserStore()
+
+const {userInfo:user} = storeToRefs(userStore)
+
+onBeforeMount(async () => {
+  await userStore.getUser()
+})
 </script>
 
 <template>
@@ -17,11 +27,11 @@
         <div class="flex gap-3 items-center">
           <img class="w-8 h-8 rounded-full" src="/src/assets/images/user.png" alt="user photo">
           <div>
-            <span class="block text-sm text-gray-900 dark:text-white">Bonnie Green</span>
-            <span class="block text-sm  text-gray-500 truncate dark:text-gray-400">name@flowbite.com</span>
+            <span class="block text-sm text-gray-900 dark:text-white">{{ user?.name }}</span>
+            <span class="block text-sm  text-gray-500 truncate dark:text-gray-400">{{ user?.email }}</span>
           </div>
 
-          <button class="text-red-500 ml-6">Log out</button>
+          <button class="text-red-500 ml-6" @click="store.logout">Log out</button>
         </div>
       </div>
       <div class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-user">

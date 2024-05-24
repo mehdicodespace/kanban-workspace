@@ -1,7 +1,5 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
-import ProfileLayout from "@/layouts/ProfileLayout.vue";
-
+import { RouterView } from 'vue-router'
 </script>
 
 <template>
