@@ -17,6 +17,7 @@ export const useUserStore = defineStore('user', () => {
         await axios.get('/sanctum/csrf-cookie');
         const {data} = await axios.post('/login', userDetails);
         useTaskStore().resetStore()
+        await getUser()
         router.push({name:'dashboard'})
     }
 
@@ -24,6 +25,7 @@ export const useUserStore = defineStore('user', () => {
         await axios.get('/sanctum/csrf-cookie')
         const {data} =await axios.post('/register', userDetails)
         useTaskStore().resetStore()
+        await getUser()
         router.push({name:'dashboard'})
     }
 

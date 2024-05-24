@@ -4,5 +4,5 @@ import { RouterView } from 'vue-router'
 
 <template>
   <link rel="stylesheet" href="https://demos.creative-tim.com/notus-js/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css">
-    <RouterView />
+  <RouterView />
 </template>

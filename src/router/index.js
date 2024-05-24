@@ -9,19 +9,30 @@ const routes = [
     {
         path: '/',
         name: 'home',
-        component: HomeView
+        component: HomeView,
+        meta: {
+            title: "Task management | Home page"
+        }
     },
     {
         path: '/login',
         name: 'login',
         component: LoginView,
-        meta: {type: 'guest'}
+        meta: {
+            type: 'guest',
+            title: "Task management | Login page"
+        },
+
     },
     {
         path: '/signup',
         name: 'signup',
         component: RegisterView,
-        meta: {type: 'guest'}
+        meta: {
+            type: 'guest',
+            title: "Task management | Signup page"
+        },
+
     },
     {
         path: '/profile',
@@ -33,7 +44,11 @@ const routes = [
                 path: "/profile/dashboard",
                 component: Dashboard,
                 name: "dashboard",
-                meta: {type: 'user'}
+                meta: {
+                    type: 'user',
+                    title: "Task management | Dashboard page"
+                },
+
             },
         ],
         meta: {type: 'user'}
@@ -54,5 +69,12 @@ router.beforeEach((to, from, next) => {
     }
     next()
 })
+
+const DEFAULT_TITLE = 'Task management app';
+router.afterEach((to, from) => {
+    // Use next tick to handle router history correctly
+    // see: https://github.com/vuejs/vue-router/issues/914#issuecomment-384477609
+        document.title = to.meta.title || DEFAULT_TITLE;
+});
 
 export default router

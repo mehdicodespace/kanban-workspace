@@ -20,7 +20,7 @@ onBeforeMount(async () => {
   await taskStore.getTasks()
 })
 
-const modalSubmitted = async({task, type}) => {
+const modalSubmitted = async ({task, type}) => {
   modalLoading.value = true
   if (type === 'create') await taskStore.createTask(task)
   else if (type === 'update') await taskStore.updateTask(task)
@@ -34,12 +34,13 @@ const modalSubmitted = async({task, type}) => {
   }
 }
 
-const createTaskModal = (status) => {
-  console.log('test')
+const createTaskModal = (status, parent_id) => {
+  console.log(parent_id)
   task.value = {
     title: '',
     status,
-    description: ''
+    description: '',
+    parent_id
   }
   taskModalType.value = 'create'
 }
@@ -49,7 +50,7 @@ const createTaskModal = (status) => {
   <TaskModal v-if="taskModalType" v-model:task="task" @close="taskModalType=false" :type="taskModalType" @modalUpdate="modalSubmitted"/>
   <div class="max-w-screen-xl mx-auto p-2 mt-4">
     <div class="bg-gray-500/40 absolute w-full h-full left-0 top-0 z-20 flex items-center justify-center" v-if="deleting">
-      <span class="loader loadLarge ml-4" ></span>
+      <span class="loader loadLarge ml-4"></span>
     </div>
 
     <div class="relative grid lg:grid-cols-3 md:grid-cols-3 sm:grid-cols-2 gap-5">
@@ -88,24 +89,26 @@ const createTaskModal = (status) => {
               </div>
             </div>
 
-            <div class="bg-gray-300 h-[1px] w-full mt-4"></div>
+            <template v-if="!todoTask.parent_id">
+              <div class="bg-gray-300 h-[1px] w-full mt-4"></div>
 
-            <div class="mt-2" >
-              <div class="flex justify-between items-center">
-                <p class="font-medium text-sm text-gray-600">
-                  Number of subtasks ({{ todoTask.subtasks?.length }})
-                </p>
+              <div class="mt-2">
+                <div class="flex justify-between items-center">
+                  <p class="font-medium text-sm text-gray-600">
+                    Number of subtasks ({{ todoTask.subtasks?.length }})
+                  </p>
 
-                <div
-                    class="inline-flex flex-row items-center justify-center gap-2 text-gray-600 px-1 cursor-pointer"
-                    @click="createTaskModal('todo')">
-                  <p class="rounded text-2xl">+</p>
-                  <p class="pt-1 rounded text-sm">New subtask</p>
+                  <div
+                      class="inline-flex flex-row items-center justify-center gap-2 text-gray-600 px-1 cursor-pointer"
+                      @click="createTaskModal('todo',todoTask.id)">
+                    <p class="rounded text-2xl">+</p>
+                    <p class="pt-1 rounded text-sm">New subtask</p>
+                  </div>
+
+
                 </div>
-
-
               </div>
-            </div>
+            </template>
           </div>
         </div>
         <div class="inline-flex flex-row items-center text-gray-300 transition duration-200 hover:text-gray-600 mt-2 px-1 cursor-pointer"
@@ -142,28 +145,31 @@ const createTaskModal = (status) => {
                 <i class="fa fa-trash text-red-400" aria-hidden="true"></i>
                 Delete
               </span>
-                <span class="text-gray-500 flex gap-2 items-center cursor-pointer" @click="task = inProgressTask;taskModalType='update'"><i class="fas fa-edit"></i>Edit</span>
+                <span class="text-gray-500 flex gap-2 items-center cursor-pointer" @click="task = inProgressTask;taskModalType='update'"><i
+                    class="fas fa-edit"></i>Edit</span>
               </div>
             </div>
 
-            <div class="bg-gray-300 h-[1px] w-full mt-4"></div>
+            <template v-if="!inProgressTask.parent_id">
+              <div class="bg-gray-300 h-[1px] w-full mt-4"></div>
 
-            <div class="mt-2" >
-              <div class="flex justify-between items-center">
-                <p class="font-medium text-sm text-gray-600">
-                  Number of subtasks ({{ inProgressTask.subtasks?.length }})
-                </p>
+              <div class="mt-2">
+                <div class="flex justify-between items-center">
+                  <p class="font-medium text-sm text-gray-600">
+                    Number of subtasks ({{ inProgressTask.subtasks?.length }})
+                  </p>
 
-                <div
-                    class="inline-flex flex-row items-center justify-center gap-2 text-gray-600 px-1 cursor-pointer"
-                    @click="createTaskModal('todo')">
-                  <p class="rounded text-2xl">+</p>
-                  <p class="pt-1 rounded text-sm">New subtask</p>
+                  <div
+                      class="inline-flex flex-row items-center justify-center gap-2 text-gray-600 px-1 cursor-pointer"
+                      @click="createTaskModal('in progress',inProgressTask.id)">
+                    <p class="rounded text-2xl">+</p>
+                    <p class="pt-1 rounded text-sm">New subtask</p>
+                  </div>
+
+
                 </div>
-
-
               </div>
-            </div>
+            </template>
           </div>
         </div>
         <div class="inline-flex flex-row items-center text-gray-300 transition duration-200 hover:text-gray-600 mt-2 px-1 cursor-pointer"
@@ -205,24 +211,26 @@ const createTaskModal = (status) => {
               </div>
             </div>
 
-            <div class="bg-gray-300 h-[1px] w-full mt-4"></div>
+            <template v-if="!doneTask.parent_id">
+              <div class="bg-gray-300 h-[1px] w-full mt-4"></div>
 
-            <div class="mt-2" >
-              <div class="flex justify-between items-center">
-                <p class="font-medium text-sm text-gray-600">
-                  Number of subtasks ({{ doneTask.subtasks?.length }})
-                </p>
+              <div class="mt-2">
+                <div class="flex justify-between items-center">
+                  <p class="font-medium text-sm text-gray-600">
+                    Number of subtasks ({{ doneTask.subtasks?.length }})
+                  </p>
 
-                <div
-                    class="inline-flex flex-row items-center justify-center gap-2 text-gray-600 px-1 cursor-pointer"
-                    @click="createTaskModal('todo')">
-                  <p class="rounded text-2xl">+</p>
-                  <p class="pt-1 rounded text-sm">New subtask</p>
+                  <div
+                      class="inline-flex flex-row items-center justify-center gap-2 text-gray-600 px-1 cursor-pointer"
+                      @click="createTaskModal('done',doneTask.id)">
+                    <p class="rounded text-2xl">+</p>
+                    <p class="pt-1 rounded text-sm">New subtask</p>
+                  </div>
+
+
                 </div>
-
-
               </div>
-            </div>
+            </template>
           </div>
         </div>
         <div class="flex flex-row items-center text-gray-300 transition duration-200 hover:text-gray-600 mt-2 px-1 cursor-pointer"

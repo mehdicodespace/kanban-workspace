@@ -8,10 +8,16 @@ const user = reactive({
   password: null
 })
 const store = useUserStore()
+const errors = ref()
 const loading = ref(false)
 const login = async () => {
   loading.value = true
-  await store.login(user)
+  try {
+    await store.login(user)
+  }catch(e){
+    console.log(e)
+    errors.value = e.response?.data?.errors
+  }
   loading.value = false
 }
 </script>
@@ -34,12 +40,18 @@ const login = async () => {
               <input type="email" v-model="user.email" name="email" id="email"
                      class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                      placeholder="name@company.com" required="">
+              <template v-if="errors?.email?.length">
+                <p class="text-red-600" v-for="emailError in errors.email">{{ emailError }}</p>
+              </template>
             </div>
             <div>
               <label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Password</label>
               <input type="password" v-model="user.password" name="password" autocomplete="off" id="password" placeholder="••••••••"
                      class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                      required="">
+              <template v-if="errors?.password?.length">
+                <p class="text-red-600" v-for="passwordError in errors.password">{{ passwordError }}</p>
+              </template>
             </div>
 
             <button type="submit"

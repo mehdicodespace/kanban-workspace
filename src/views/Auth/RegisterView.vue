@@ -14,10 +14,7 @@ const user = reactive({
 })
 
 const errors = ref({
-  name: [],
-  email: [],
-  password: [],
-  password_confirmation: []
+
 })
 
 const loading = ref(false)
@@ -34,7 +31,12 @@ const signup = async () => {
       if (user.password && user.password.length >= 8) {
         if (user.password === user.password_confirmation) {
           loading.value = true
-          await store.register(user)
+          try{
+            await store.register(user)
+          }catch(e) {
+            console.log(e)
+            errors.value = e.response?.data?.errors
+          }
           loading.value = false
         } else errors.value.password_confirmation.push("Password & password confirmation doesn't match")
       } else errors.value.password.push("The password field must be at least 8 characters.")
@@ -63,7 +65,7 @@ const signup = async () => {
               <input type="text" v-model="user.name" name="name" id="name"
                      class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                      placeholder="name">
-              <template v-if="errors.name.length">
+              <template v-if="errors.name?.length">
                 <p class="text-red-600" v-for="nameError in errors.name">{{ nameError }}</p>
               </template>
             </div>
@@ -72,7 +74,7 @@ const signup = async () => {
               <input type="email" v-model="user.email" name="email" id="email"
                      class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                      placeholder="name@company.com">
-              <template v-if="errors.email.length">
+              <template v-if="errors.email?.length">
                 <p class="text-red-600" v-for="emailError in errors.email">{{ emailError }}</p>
               </template>
             </div>
@@ -80,7 +82,7 @@ const signup = async () => {
               <label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Password</label>
               <input type="password" v-model="user.password" name="password" autocomplete="off" id="password" placeholder="••••••••"
                      class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-              <template v-if="errors.password.length">
+              <template v-if="errors.password?.length">
                 <p class="text-red-600" v-for="passwordError in errors.password">{{ passwordError }}</p>
               </template>
             </div>
@@ -88,7 +90,7 @@ const signup = async () => {
               <label for="confirm-password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Confirm password</label>
               <input type="password" v-model="user.password_confirmation" name="confirm-password" id="confirm-password" placeholder="••••••••"
                      class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-              <template v-if="errors.password_confirmation.length">
+              <template v-if="errors.password_confirmation?.length">
                 <p class="text-red-600" v-for="password_confirmationError in errors.password_confirmation">{{ password_confirmationError }}</p>
               </template>
             </div>

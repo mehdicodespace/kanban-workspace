@@ -25,7 +25,7 @@ onBeforeMount(async () => {
           <div class="w-full lg:w-6/12 px-4 ml-auto mr-auto text-center">
             <div class="pr-12">
               <h1 class="text-white font-semibold text-5xl">
-                Work smarter with with us.
+                Work smarter with us.
               </h1>
               <p class="mt-4 text-lg text-blue-100">
                 Plan, manage and track all your team's tasks in one flexible platform.
