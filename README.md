@@ -1,90 +1,93 @@
-# Task management  (Vue 3)
+# Kanban Workspace
 
-Developed via **TailwindCSS, Pinia state management, Axios & Vue-Router**.
-## Folder structure:
+A Vue 3 task board with Firebase Authentication and Cloud Firestore. Organize work into To-do, In progress, and Done, with descriptions and one level of subtasks.
 
-- **Assets** (Including main style file & Images directory)
-- **Components** (Including **TaskModal.vue** & navigation component  used in dashboard page)
-- **Helpers** (Including email validator utility function to use in different places)
-- **Layouts** (To put different layout components containing **ProfileLayout.vue**)
-- **Router** (Routes configuration, linking to components)
-- **Services** (Axios configurations, in future could contain more configs + services separated)
-- **Stores** (Pinia stores including user & task store for implementing different actions & sharing states)
-- **Views** (Page components used to link each route to a component)
+## Features
 
-# How to run the project
->### Project Setup
-```sh  
-npm install
-```
->### Compile and Hot-Reload for Development
-```sh  
+- Email and password registration, sign-in, and sign-out.
+- A private board for every account, with Firebase-managed sessions.
+- Create, edit, and delete tasks; deleting a parent also deletes its subtasks.
+- Responsive board columns, keyboard-accessible task dialogs, and visible error/loading states.
+- Persistent cloud storage with ownership and field validation enforced by Firestore rules.
+
+## Run locally
+
+Requires Node.js 22.12 or newer.
+
+```sh
+npm ci
+cp .env.example .env
 npm run dev
 ```
->### Compile and Minify for Production
-```sh  
+
+Fill `.env` with your Firebase web app configuration before starting. The development server runs at `http://localhost:3000`.
+
+```sh
+npm run lint
+npm test
 npm run build
+npm run preview
 ```
-<br>
-> In the **vite.config.js** file located in the root of the project you can config the **app port**
 
-    server: {  
-      port: 3000  
-    },
-> consider if you wanted to config laravel backend put related configurations there.
+## Firebase configuration
 
-<br>
+1. Register a web app in your Firebase project and copy its configuration into `.env` using the variable names in `.env.example`.
+2. Enable the Email/Password provider in Firebase Authentication.
+3. Create a Cloud Firestore **Standard edition** database in production mode.
+4. Publish the included `firestore.rules`. Default production rules deny all access until these rules are published.
+5. Add your deployment domain to Authentication's authorized domains when required by the chosen sign-in flow.
 
-## Brief Info about project structure & design system
-There are two main stores:
-**userStore**  which handles almost everything related to user (**Login, Register, Saving user data, getting user info, Logout**)
+The web app uses the modular Firebase SDK directly. Firebase supplies the authentication API and database API, so no custom backend, Laravel installation, Axios client, or separate REST server is needed.
 
-**taskStore** which handles (**Getting tasks list**, **filtering tasks based on status**, **Creating new task**, **updating a task**, **Deleting a task** as well as handling loading states for deleting, and modal update and create task loadings)
+Firebase client configuration is included in the browser build; `.env` separates environments rather than making these values secret. Never put service-account credentials or admin keys in `VITE_*` variables. Firestore rules enforce access to data.
 
-There is an axios error interceptor to handle 401 errors to signout user and redirect to login page as well.
+### Data model and access
 
-Each task can have a subtask, but subtasks can't have another subtask based on this UI design.
+Tasks are stored at `users/{uid}/tasks/{taskId}`. Documents contain `title`, `description`, `status`, `parent_id`, `createdAt`, and `updatedAt`.
 
-I could implement drag and drop functionality for changing status of each task & much more better features and functionalities but currently as a simple task for testing my skills I think it has a good state to be showen for now.
+Rules restrict every read and write to the signed-in owner. Writes validate allowed fields, text lengths, statuses, timestamps, and parent references. A task can have one parent, and a parent cannot itself be a subtask. The parent reference is fixed after creation to prevent cycles or nesting. Parent deletion removes its direct subtasks in an atomic batch (up to 500 documents).
 
-You can see the way of transfering data & handling errors in the components as well which can have improvements a lot.
-# Router config details
-> Every route has a meta key, containing page title & auth type (for example guest type routes is only for unauhrized users)
+## Project structure
 
-    {  
-        meta: {  
-            type: 'guest',  
-            title: "Task management | Login page"  
-      },  
-    },
+```text
+src/
+  assets/                 Global styles and bundled images
+  components/
+    layout/               Shared navigation
+    tasks/                BoardColumn, TaskCard, TaskModal
+  layouts/                Shared page shell
+  router/                 Lazy-loaded routes and session-aware guards
+  services/               Firebase setup, authentication, and task persistence
+  stores/                 Pinia session and task state
+  utils/                  Validation and readable error messages
+  views/
+    auth/                 Login and registration pages
+    profile/              Board pages
+    HomeView.vue           Landing page
 
-> Auhrized routes have type of user like below:
+tests/                    Task validation and hierarchy checks
+firestore.rules           Server-enforced database access and schema
+firebase.json             Rules and optional Firebase Hosting configuration
+```
 
-    {  
-        path: "/profile/dashboard",  
-        component: Dashboard,  
-        name: "dashboard",  
-        meta: {  
-            type: 'user',  
-            title: "Task management | Dashboard page"  
-      },  
-    },
+Pages coordinate user interactions, reusable components render the board, stores manage shared state, and services own Firebase operations. Route guards wait for Firebase to restore the session rather than trusting a localStorage flag. The task editor works on a draft so cancelling never changes the board.
 
-> in the router config with **router.beforeEach** function hook we check these parameters alongside user token to decide user can see requested page or needs to get's redirected.
+## Deployment
 
-    router.beforeEach((to, from, next) => {  
-        let user = localStorage.getItem('user')  
-        if (to.meta.type === 'user') {  
-            if (!user) router.push({name: 'login'})  
-        } else if (to.meta.type === 'guest') {  
-            if (user) router.push({name: 'dashboard'})  
-        }  
-        next()  
-    })
+Build command: `npm run build`. Publish directory: `dist`.
 
-> Also with **router.afterEach** hook we set page title of each route
+Set all variables from `.env.example` in your hosting provider before building. Vite embeds these values at build time. Netlify's SPA fallback is included in `public/_redirects`; Firebase Hosting rewrites are included in `firebase.json`.
 
-    const DEFAULT_TITLE = 'Task management app';  
-    router.afterEach((to, from) => {  
-            document.title = to.meta.title || DEFAULT_TITLE;  
-    });
+To publish rules with the Firebase CLI after signing in:
+
+```sh
+npx firebase-tools deploy --only firestore:rules --project YOUR_PROJECT_ID
+```
+
+## Original backend
+
+The original frontend required an external Laravel Sanctum server, which was not part of this repository. It called `/sanctum/csrf-cookie`, `/login`, `/register`, `/logout`, `/api/user`, and `/api/tasks`. Those calls and the old `VITE_BASE_URL` configuration have been replaced with Firebase services.
+
+## Scope
+
+This is a personal task workspace. Status changes happen in the task editor; drag-and-drop, shared team boards, invitations, and password recovery are not implemented.

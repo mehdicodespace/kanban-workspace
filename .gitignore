@@ -31,3 +31,8 @@ coverage
 *.sw?
 
 *.tsbuildinfo
+
+.env.*
+!.env.example
+.firebase/
+firebase-debug.log

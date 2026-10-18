@@ -1,80 +1,75 @@
-import {createRouter, createWebHistory} from 'vue-router'
-import HomeView from '@/views/HomeView.vue'
-import LoginView from '@/views/Auth/LoginView.vue'
-import RegisterView from '@/views/Auth/RegisterView.vue'
-import index from "@/views/Profile/index.vue";
-import Dashboard from "@/views/Profile/Dashboard.vue";
+import { useUserStore } from '@/stores/user'
+import { createRouter, createWebHistory } from 'vue-router'
+const HomeView = () => import('@/views/HomeView.vue')
+const LoginView = () => import('@/views/auth/LoginView.vue')
+const RegisterView = () => import('@/views/auth/RegisterView.vue')
+const ProfileView = () => import('@/views/profile/ProfileView.vue')
+const DashboardView = () => import('@/views/profile/DashboardView.vue')
 
 const routes = [
-    {
-        path: '/',
-        name: 'home',
-        component: HomeView,
-        meta: {
-            title: "Task management | Home page"
-        }
-    },
-    {
-        path: '/login',
-        name: 'login',
-        component: LoginView,
-        meta: {
-            type: 'guest',
-            title: "Task management | Login page"
-        },
-
-    },
-    {
-        path: '/signup',
-        name: 'signup',
-        component: RegisterView,
-        meta: {
-            type: 'guest',
-            title: "Task management | Signup page"
-        },
-
-    },
-    {
-        path: '/profile',
-        name: "profile",
-        redirect: {name: "dashboard"},
-        component: index,
-        children: [
-            {
-                path: "/profile/dashboard",
-                component: Dashboard,
-                name: "dashboard",
-                meta: {
-                    type: 'user',
-                    title: "Task management | Dashboard page"
-                },
-
-            },
-        ],
-        meta: {type: 'user'}
+  { path: '/:pathMatch(.*)*', redirect: '/' },
+  {
+    path: '/',
+    name: 'home',
+    component: HomeView,
+    meta: {
+      title: 'Task management | Home page'
     }
+  },
+  {
+    path: '/login',
+    name: 'login',
+    component: LoginView,
+    meta: {
+      type: 'guest',
+      title: 'Task management | Login page'
+    }
+  },
+  {
+    path: '/signup',
+    name: 'signup',
+    component: RegisterView,
+    meta: {
+      type: 'guest',
+      title: 'Task management | Signup page'
+    }
+  },
+  {
+    path: '/profile',
+    name: 'profile',
+    redirect: { name: 'dashboard' },
+    component: ProfileView,
+    children: [
+      {
+        path: 'dashboard',
+        component: DashboardView,
+        name: 'dashboard',
+        meta: {
+          type: 'user',
+          title: 'Task management | Dashboard page'
+        }
+      }
+    ],
+    meta: { type: 'user' }
+  }
 ]
 
 const router = createRouter({
-    history: createWebHistory(import.meta.env.BASE_URL),
-    routes
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes
 })
 
-router.beforeEach((to, from, next) => {
-    let user = localStorage.getItem('user')
-    if (to.meta.type === 'user') {
-        if (!user) router.push({name: 'login'})
-    } else if (to.meta.type === 'guest') {
-        if (user) router.push({name: 'dashboard'})
-    }
-    next()
+router.beforeEach(async (to) => {
+  const store = useUserStore()
+  await store.initialize()
+  const user = store.userInfo
+  if (to.meta.type === 'user' && !user) return { name: 'login' }
+  if (to.meta.type === 'guest' && user) return { name: 'dashboard' }
 })
 
-const DEFAULT_TITLE = 'Task management app';
-router.afterEach((to, from) => {
-    // Use next tick to handle router history correctly
-    // see: https://github.com/vuejs/vue-router/issues/914#issuecomment-384477609
-        document.title = to.meta.title || DEFAULT_TITLE;
-});
+const DEFAULT_TITLE = 'Task management app'
+router.afterEach((to) => {
+  document.title = to.meta.title || DEFAULT_TITLE
+})
 
 export default router

@@ -1,6 +1,5 @@
 <script setup>
-
-import ProfileLayout from "@/layouts/ProfileLayout.vue";
+import ProfileLayout from '@/layouts/ProfileLayout.vue'
 </script>
 
 <template>
@@ -8,7 +7,3 @@ import ProfileLayout from "@/layouts/ProfileLayout.vue";
     <RouterView></RouterView>
   </ProfileLayout>
 </template>
-
-<style scoped lang="scss">
-
-</style>
