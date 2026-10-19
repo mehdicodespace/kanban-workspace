@@ -25,7 +25,7 @@ async function login() {
 </script>
 <template>
   <AuthLayout title="Welcome back" description="Sign in to pick up where you left off.">
-    <p v-if="error" role="alert" class="mb-4 text-sm text-red-700">{{ error }}</p>
+    <p v-if="error" role="alert" class="mb-4 text-sm text-red-700 dark:text-red-300">{{ error }}</p>
     <form @submit.prevent="login">
       <fieldset :disabled="loading" class="space-y-5">
         <div>
@@ -56,9 +56,11 @@ async function login() {
         </button>
       </fieldset>
     </form>
-    <p class="mt-6 text-sm text-slate-500">
+    <p class="mt-6 text-sm text-slate-500 dark:text-slate-400">
       New here?
-      <RouterLink to="/signup" class="text-blue-700 font-medium">Create an account</RouterLink>
+      <RouterLink to="/signup" class="font-medium text-blue-700 dark:text-blue-300"
+        >Create an account</RouterLink
+      >
     </p>
   </AuthLayout>
 </template>

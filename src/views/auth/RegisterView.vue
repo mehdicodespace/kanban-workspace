@@ -33,7 +33,7 @@ async function signup() {
 </script>
 <template>
   <AuthLayout title="Create your workspace" description="A fresh start for your tasks and ideas.">
-    <p v-if="error" role="alert" class="mb-4 text-sm text-red-700">{{ error }}</p>
+    <p v-if="error" role="alert" class="mb-4 text-sm text-red-700 dark:text-red-300">{{ error }}</p>
     <form @submit.prevent="signup">
       <fieldset :disabled="loading" class="space-y-5">
         <div>
@@ -72,7 +72,9 @@ async function signup() {
             aria-describedby="password-hint"
             required
           />
-          <p id="password-hint" class="mt-1 text-xs text-slate-500">Use at least 8 characters.</p>
+          <p id="password-hint" class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+            Use at least 8 characters.
+          </p>
         </div>
         <div>
           <label for="password-confirmation" class="form-label">Confirm password</label>
@@ -91,9 +93,11 @@ async function signup() {
         </button>
       </fieldset>
     </form>
-    <p class="mt-6 text-sm text-slate-500">
+    <p class="mt-6 text-sm text-slate-500 dark:text-slate-400">
       Already have an account?
-      <RouterLink to="/login" class="text-blue-700 font-medium">Sign in</RouterLink>
+      <RouterLink to="/login" class="font-medium text-blue-700 dark:text-blue-300"
+        >Sign in</RouterLink
+      >
     </p>
   </AuthLayout>
 </template>
