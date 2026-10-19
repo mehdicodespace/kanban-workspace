@@ -2,6 +2,8 @@
 
 A Vue 3 task board with Firebase Authentication and Cloud Firestore. Organize work into To-do, In progress, and Done, with descriptions and one level of subtasks.
 
+**Live demo:** [kanban-mehdispace.netlify.app](https://kanban-mehdispace.netlify.app/)
+
 ## Features
 
 - Email and password registration, sign-in, and sign-out.
