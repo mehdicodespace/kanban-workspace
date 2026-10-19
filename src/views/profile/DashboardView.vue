@@ -234,7 +234,6 @@ const { draggingTask, dragPreview, dropTargetStatus, startDrag: onDragStart } = 
           <h2 class="truncate text-sm font-semibold text-slate-800 dark:text-slate-100">
             {{ column.label }}
           </h2>
-          <span aria-hidden="true" class="h-5 w-7 animate-pulse rounded-full bg-slate-200 dark:bg-slate-700" />
         </div>
         <span class="sr-only">Loading {{ column.label }} tasks…</span>
         <div class="grid gap-3">
