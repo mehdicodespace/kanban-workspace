@@ -7,7 +7,10 @@ A Vue 3 task board with Firebase Authentication and Cloud Firestore. Organize wo
 - Email and password registration, sign-in, and sign-out.
 - A private board for every account, with Firebase-managed sessions.
 - Create, edit, and delete tasks; deleting a parent also deletes its subtasks.
-- Responsive board columns, keyboard-accessible task dialogs, and visible error/loading states.
+- Responsive board columns with full-card drag-and-drop status changes; status remains editable in the task editor.
+- Collapsible subtasks grouped with their parent while in the same column; moved subtasks appear independently in their own column with parent context.
+- Keyboard-accessible task dialogs and visible error/loading states.
+- A persistent light and dark theme that follows the device preference on first visit.
 - Persistent cloud storage with ownership and field validation enforced by Firestore rules.
 
 ## Run locally
@@ -90,4 +93,4 @@ The original frontend required an external Laravel Sanctum server, which was not
 
 ## Scope
 
-This is a personal task workspace. Status changes happen in the task editor; drag-and-drop, shared team boards, invitations, and password recovery are not implemented.
+This is a personal task workspace. Moving a parent task carries along its subtasks that are still in the same column; subtasks already moved independently stay in place. Subtasks share the parent accordion while they are in the same column and appear independently with parent context when their status differs. Shared team boards, invitations, and password recovery are not implemented.
