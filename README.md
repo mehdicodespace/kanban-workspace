@@ -13,6 +13,16 @@ A Vue 3 task board with Firebase Authentication and Cloud Firestore. Organize wo
 - A persistent light and dark theme that follows the device preference on first visit.
 - Persistent cloud storage with ownership and field validation enforced by Firestore rules.
 
+## Preview
+
+| Landing page | Sign in |
+| --- | --- |
+| ![Kanban Workspace landing page](src/assets/images/preview-landing.png) | ![Kanban Workspace sign-in page](src/assets/images/preview-sign-in.png) |
+
+| Task board dashboard | Create a task |
+| --- | --- |
+| ![Kanban Workspace task board dashboard](src/assets/images/preview-dashboard.png) | ![Kanban Workspace create-task form](src/assets/images/preview-create-task.png) |
+
 ## Run locally
 
 Requires Node.js 22.12 or newer.
