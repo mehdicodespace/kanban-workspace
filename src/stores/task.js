@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { taskService } from '@/services/tasks'
+import { applyTaskStatusChanges, boardTasksForStatus, taskStatusChangesForMove } from '@/utils/tasks'
 
 export const useTaskStore = defineStore('task', () => {
   const tasks = ref([])
@@ -26,6 +27,20 @@ export const useTaskStore = defineStore('task', () => {
     await taskService.update(task)
     await getTasks()
   }
+  async function moveTask(task, status) {
+    const changes = taskStatusChangesForMove(tasks.value, task.id, status)
+    const previousStatuses = new Map(
+      [...changes.keys()].map((id) => [id, tasks.value.find((item) => item.id === id)?.status])
+    )
+    tasks.value = applyTaskStatusChanges(tasks.value, changes)
+
+    try {
+      await taskService.update({ ...task, status })
+    } catch (error) {
+      tasks.value = applyTaskStatusChanges(tasks.value, previousStatuses)
+      throw error
+    }
+  }
   async function deleteTask(id) {
     deleting.value = true
     try {
@@ -36,7 +51,7 @@ export const useTaskStore = defineStore('task', () => {
     }
   }
   function filterTasks(status) {
-    return tasks.value.filter((task) => task.status === status)
+    return boardTasksForStatus(tasks.value, status)
   }
   function resetStore() {
     generation++
@@ -53,6 +68,7 @@ export const useTaskStore = defineStore('task', () => {
     getTasks,
     createTask,
     updateTask,
+    moveTask,
     deleteTask,
     filterTasks,
     resetStore

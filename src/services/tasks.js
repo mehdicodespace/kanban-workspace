@@ -11,7 +11,7 @@ import {
   serverTimestamp
 } from 'firebase/firestore'
 import { auth, db, requireFirebase } from './firebase'
-import { validateTask } from '@/utils/tasks'
+import { shouldMoveSubtaskWithParent, validateTask } from '@/utils/tasks'
 
 function taskCollection() {
   requireFirebase()
@@ -28,8 +28,10 @@ export const taskService = {
     const snapshot = await getDocs(taskCollection())
     const tasks = snapshot.docs.map((item) => ({ ...item.data(), id: item.id }))
     tasks.sort((a, b) => (a.createdAt?.toMillis() || 0) - (b.createdAt?.toMillis() || 0))
+    const tasksById = new Map(tasks.map((task) => [task.id, task]))
     return tasks.map((task) => ({
       ...task,
+      parentTitle: task.parent_id ? tasksById.get(task.parent_id)?.title || 'Parent task' : null,
       subtasks: tasks.filter((child) => child.parent_id === task.id)
     }))
   },
@@ -46,7 +48,28 @@ export const taskService = {
       throw new Error('The parent of an existing task cannot be changed.')
     }
     const data = validateTask(task, await parentsForValidation(ref, task))
-    await updateDoc(doc(ref, task.id), { ...data, updatedAt: serverTimestamp() })
+    const taskRef = doc(ref, task.id)
+    const previousStatus = snapshot.data().status
+
+    if (!data.parent_id && data.status !== previousStatus) {
+      const children = await getDocs(query(ref, where('parent_id', '==', task.id)))
+      const childrenToMove = children.docs.filter((child) =>
+        shouldMoveSubtaskWithParent(child.data(), previousStatus)
+      )
+      if (childrenToMove.length + 1 > 500) {
+        throw new Error('This task has too many subtasks to move together.')
+      }
+
+      const batch = writeBatch(db)
+      batch.update(taskRef, { ...data, updatedAt: serverTimestamp() })
+      for (const child of childrenToMove) {
+        batch.update(child.ref, { status: data.status, updatedAt: serverTimestamp() })
+      }
+      await batch.commit()
+      return
+    }
+
+    await updateDoc(taskRef, { ...data, updatedAt: serverTimestamp() })
   },
   async remove(id) {
     const ref = taskCollection()

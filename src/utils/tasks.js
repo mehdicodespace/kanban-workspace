@@ -1,5 +1,61 @@
 export const TASK_STATUSES = ['todo', 'in progress', 'done']
 
+export function boardTasksForStatus(tasks, status) {
+  const tasksById = new Map(tasks.map((task) => [task.id, task]))
+  return tasks.filter((task) => {
+    if (task.status !== status) return false
+    if (!task.parent_id) return true
+
+    const parent = tasksById.get(task.parent_id)
+    return !parent || parent.status !== status
+  })
+}
+
+export function subtasksInSameColumn(task) {
+  return (task.subtasks || []).filter((subtask) => subtask.status === task.status)
+}
+
+export function movedSubtasksCount(task) {
+  return (task.subtasks || []).length - subtasksInSameColumn(task).length
+}
+
+export function shouldMoveSubtaskWithParent(subtask, parentStatus) {
+  return subtask.status === parentStatus
+}
+
+export function taskStatusChangesForMove(tasks, taskId, nextStatus) {
+  const task = tasks.find((item) => item.id === taskId)
+  if (!task) throw new Error('Task no longer exists in the board.')
+
+  const changes = new Map([[task.id, nextStatus]])
+  if (!task.parent_id && task.status !== nextStatus) {
+    for (const child of tasks) {
+      if (child.parent_id === task.id && shouldMoveSubtaskWithParent(child, task.status)) {
+        changes.set(child.id, nextStatus)
+      }
+    }
+  }
+
+  return changes
+}
+
+export function applyTaskStatusChanges(tasks, changes) {
+  return tasks.map((task) => {
+    const status = changes.get(task.id)
+    const hasNestedChanges = task.subtasks?.some((subtask) => changes.has(subtask.id))
+
+    if (status === undefined && !hasNestedChanges) return task
+
+    return {
+      ...task,
+      ...(status === undefined ? {} : { status }),
+      ...(hasNestedChanges
+        ? { subtasks: task.subtasks.map((subtask) => ({ ...subtask, status: changes.get(subtask.id) ?? subtask.status })) }
+        : {})
+    }
+  })
+}
+
 export function validateTask(task, tasks = []) {
   const title = task.title?.trim()
   const description = task.description?.trim() || ''
