@@ -3,6 +3,7 @@ import {
   doc,
   getDoc,
   getDocs,
+  getDocsFromServer,
   query,
   where,
   addDoc,
@@ -25,7 +26,7 @@ async function parentsForValidation(ref, task) {
 }
 export const taskService = {
   async list() {
-    const snapshot = await getDocs(taskCollection())
+    const snapshot = await getDocsFromServer(taskCollection())
     const tasks = snapshot.docs.map((item) => ({ ...item.data(), id: item.id }))
     tasks.sort((a, b) => (a.createdAt?.toMillis() || 0) - (b.createdAt?.toMillis() || 0))
     const tasksById = new Map(tasks.map((task) => [task.id, task]))
